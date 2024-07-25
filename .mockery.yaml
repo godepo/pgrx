@@ -1,0 +1,27 @@
+with-expecter: True
+all: True
+dir: ./
+mockname: "Mock{{.InterfaceName}}"
+filename: "mock_{{.InterfaceName}}_test.go"
+outpkg: "pgrx"
+packages:
+  github.com/spf13/afero:
+    config:
+      all: False
+    interfaces:
+      Fs:
+        config:
+      File:
+        config:
+  github.com/godepo/pgrx:
+    config:
+      all: False
+    interfaces:
+        DB:
+          config:
+  io/fs:
+    config:
+      all: False
+    interfaces:
+      FileInfo:
+        config:

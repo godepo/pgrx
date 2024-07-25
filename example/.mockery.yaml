@@ -1,0 +1,16 @@
+with-expecter: True
+dir: ./
+mockname: "Mock{{.InterfaceName}}"
+filename: "mock_{{.InterfaceName}}_test.go"
+outpkg: "example"
+packages:
+  github.com/godepo/pgrx/example:
+    config:
+      all: False
+    interfaces:
+      DB:
+        config:
+  github.com/jackc/pgx/v5:
+    config:
+      all: False
+      include-regex: "Rows"
