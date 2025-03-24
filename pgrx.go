@@ -22,6 +22,12 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+const (
+	defaultTestsDeadline = time.Second * 5
+	defaultPoolMaxCons   = 8
+	defaultPoolMinCons   = 2
+)
+
 type DB interface {
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 }
@@ -52,7 +58,7 @@ type containerRunner func(
 
 type PostgresContainer interface {
 	ConnectionString(ctx context.Context, args ...string) (string, error)
-	Terminate(context.Context) error // terminate the container
+	Terminate(ctx context.Context, opts ...testcontainers.TerminateOption) error
 }
 
 type Container[T any] struct {
@@ -76,6 +82,7 @@ type MigratorConfig struct {
 type Migrator func(ctx context.Context, migratorConfig MigratorConfig) error
 
 func (c *Container[T]) Injector(t *testing.T, to T) T {
+	t.Helper()
 	cfg, err := pgxpool.ParseConfig(c.connString)
 	require.NoError(t, err)
 
@@ -87,7 +94,7 @@ func (c *Container[T]) Injector(t *testing.T, to T) T {
 	_, err = c.root.Exec(c.ctx, fmt.Sprintf("CREATE DATABASE %s WITH OWNER = '%s'",
 		cfg.ConnConfig.Database, cfg.ConnConfig.User))
 	require.NoError(t, err,
-		fmt.Sprintf("can't created database=%s for user %s", cfg.ConnConfig.Database, cfg.ConnConfig.User),
+		"can't created database=%s for user %s", cfg.ConnConfig.Database, cfg.ConnConfig.User,
 	)
 
 	p, err := pgxpool.NewWithConfig(c.ctx, cfg)
@@ -112,9 +119,9 @@ func New[T any](all ...Option) integration.Bootstrap[T] {
 		password:            "test",
 		containerImage:      "postgres:16",
 		imageEnvValue:       "GROAT_I9N_PG_IMAGE",
-		deadline:            time.Second * 5,
-		poolMaxConns:        8,
-		poolMinConns:        2,
+		deadline:            defaultTestsDeadline,
+		poolMaxConns:        defaultPoolMaxCons,
+		poolMinConns:        defaultPoolMinCons,
 		poolMaxConnIdleTime: time.Minute,
 		migrationsPath:      "../sql/migrations",
 		fs:                  afero.NewOsFs(),
@@ -163,7 +170,7 @@ func bootstrapper[T any](cfg config) integration.Bootstrap[T] {
 			testcontainers.WithWaitStrategyAndDeadline(
 				cfg.deadline,
 				wait.ForLog("database system is ready to accept connections").
-					WithOccurrence(2).WithStartupTimeout(4*time.Second),
+					WithOccurrence(2).WithStartupTimeout(4*time.Second), //nolint:mnd
 			),
 		)
 		if err != nil {

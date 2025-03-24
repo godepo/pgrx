@@ -1,0 +1,53 @@
+version: "2"
+run:
+  concurrency: 8
+  issues-exit-code: 1
+  tests: false
+linters:
+  default: all
+  disable:
+    - containedctx
+    - depguard
+    - errname
+    - exhaustive
+    - exhaustruct
+    - forcetypeassert
+    - ireturn
+    - nlreturn
+    - nonamedreturns
+    - varnamelen
+    - wrapcheck
+    - tagalign
+    - tagliatelle
+    - wsl
+  settings:
+    lll:
+      line-length: 120
+    misspell:
+      locale: US
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - path: (.+)\.go$
+        text: seems to be unused, consider removing or renaming it as _
+      - path: (.+)\.go$
+        text: assignments should only be cuddled with other assignments
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

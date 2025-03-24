@@ -8,7 +8,7 @@ import (
 
 type Option func(*config)
 
-// WithContainerImageEnv override ENV contained container image name, by default using GROAT_I9N_PG_IMAGE
+// WithContainerImageEnv override ENV contained container image name, by default using GROAT_I9N_PG_IMAGE.
 func WithContainerImageEnv(env string) Option {
 	return func(c *config) {
 		c.imageEnvValue = env
@@ -60,21 +60,21 @@ func WithPoolMaxConnections(maxCons int32) Option {
 	}
 }
 
-// WithPoolMinConnections override default number of pgx pool min connections by default used  2
+// WithPoolMinConnections override default number of pgx pool min connections by default used  2.
 func WithPoolMinConnections(minCons int32) Option {
 	return func(c *config) {
 		c.poolMinConns = minCons
 	}
 }
 
-// WithPoolMaxIdleTime  override default number of pgx pool min connections by default used one minute
+// WithPoolMaxIdleTime  override default number of pgx pool min connections by default used one minute.
 func WithPoolMaxIdleTime(maxIdleTime time.Duration) Option {
 	return func(c *config) {
 		c.poolMaxConnIdleTime = maxIdleTime
 	}
 }
 
-// WithMigrator override default migration func for pgx pool by default used plain sql files in directory
+// WithMigrator override default migration func for pgx pool by default used plain sql files in directory.
 func WithMigrator(migrator Migrator) Option {
 	return func(c *config) {
 		c.migrator = migrator
@@ -88,7 +88,7 @@ func WithFileSystem(fs afero.Fs) Option {
 	}
 }
 
-// WithMigrationsPath set default path to migrations files
+// WithMigrationsPath set default path to migrations files.
 func WithMigrationsPath(path string) Option {
 	return func(c *config) {
 		c.migrationsPath = path

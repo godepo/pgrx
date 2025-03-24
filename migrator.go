@@ -9,8 +9,10 @@ import (
 	"github.com/spf13/afero"
 )
 
+const defaultExpMigrations = 8
+
 func PlainMigrator(fs afero.Fs, path string) (Migrator, error) {
-	migrations := make([]string, 0, 8)
+	migrations := make([]string, 0, defaultExpMigrations)
 
 	dir, err := fs.Open(path)
 	if err != nil {
@@ -42,7 +44,7 @@ func PlainMigrator(fs afero.Fs, path string) (Migrator, error) {
 
 	return func(ctx context.Context, cfg MigratorConfig) error {
 		for _, migration := range migrations {
-			if _, err := cfg.Pool.Exec(context.Background(), migration); err != nil {
+			if _, err := cfg.Pool.Exec(ctx, migration); err != nil {
 				return err
 			}
 		}
