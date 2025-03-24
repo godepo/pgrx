@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.3
 	github.com/jaswdr/faker/v2 v2.3.0
 	github.com/spf13/afero v1.11.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.32.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.32.0
 )
