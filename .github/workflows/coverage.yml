@@ -1,5 +1,8 @@
 name: Go test coverage check
 on:
+  push:
+    branches:
+      - main
   pull_request:
   merge_group:
 permissions:
