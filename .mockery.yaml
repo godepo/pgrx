@@ -19,6 +19,8 @@ packages:
     interfaces:
         DB:
           config:
+        PostgresContainer:
+          config:
   io/fs:
     config:
       all: False
