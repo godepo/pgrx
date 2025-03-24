@@ -40,11 +40,24 @@ type config struct {
 	hasSetMigrator      bool
 	migrationsPath      string
 	fs                  afero.Fs
+	runner              containerRunner
+	poolConstructor     func(ctx context.Context, config *pgxpool.Config) (*pgxpool.Pool, error)
+}
+
+type containerRunner func(
+	ctx context.Context,
+	img string,
+	opts ...testcontainers.ContainerCustomizer,
+) (PostgresContainer, error)
+
+type PostgresContainer interface {
+	ConnectionString(ctx context.Context, args ...string) (string, error)
+	Terminate(context.Context) error // terminate the container
 }
 
 type Container[T any] struct {
 	forks          *atomic.Int32
-	pc             *postgres.PostgresContainer
+	pc             PostgresContainer
 	connString     string
 	pgCfg          *pgxpool.Config
 	ctx            context.Context
@@ -105,6 +118,14 @@ func New[T any](all ...Option) integration.Bootstrap[T] {
 		poolMaxConnIdleTime: time.Minute,
 		migrationsPath:      "../sql/migrations",
 		fs:                  afero.NewOsFs(),
+		runner: func(
+			ctx context.Context,
+			img string,
+			opts ...testcontainers.ContainerCustomizer,
+		) (PostgresContainer, error) {
+			return postgres.Run(ctx, img, opts...)
+		},
+		poolConstructor: pgxpool.NewWithConfig,
 	}
 	for _, opt := range all {
 		opt(&cfg)
@@ -127,7 +148,7 @@ func bootstrapper[T any](cfg config) integration.Bootstrap[T] {
 			cfg.migrator = mig
 		}
 
-		pc, err := postgres.Run(
+		pc, err := cfg.runner(
 			ctx,
 			cfg.containerImage,
 			postgres.WithPassword(cfg.password),
@@ -161,7 +182,7 @@ func bootstrapper[T any](cfg config) integration.Bootstrap[T] {
 }
 
 func newContainer[T any](ctx context.Context,
-	pc *postgres.PostgresContainer,
+	pc PostgresContainer,
 	cfg config,
 ) (*Container[T], error) {
 	container := &Container[T]{
@@ -174,7 +195,7 @@ func newContainer[T any](ctx context.Context,
 
 	connString, err := pc.ConnectionString(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get connection string for postgres container: %v", err)
+		return nil, fmt.Errorf("cannot get connection string for postgres container: %w", err)
 	}
 	container.connString = connString
 	container.pgCfg, err = pgxpool.ParseConfig(container.connString)
@@ -186,7 +207,7 @@ func newContainer[T any](ctx context.Context,
 	container.pgCfg.MaxConnIdleTime = cfg.poolMaxConnIdleTime
 	container.pgCfg.MaxConns = cfg.poolMaxConns
 
-	root, err := pgxpool.NewWithConfig(ctx, container.pgCfg)
+	root, err := cfg.poolConstructor(ctx, container.pgCfg)
 	if err != nil {
 		return nil, fmt.Errorf("can't connect to root db: %w", err)
 	}
