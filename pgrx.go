@@ -88,6 +88,7 @@ func (c *Container[T]) Injector(t *testing.T, to T) T {
 		UserName: cfg.ConnConfig.User,
 	})
 	require.NoError(t, err)
+	generics.Injector[*pgxpool.Config, T](t, cfg, to, "pgxconfig")
 	return generics.Injector[*pgxpool.Pool, T](t, p, to, "pgxpool")
 }
 
