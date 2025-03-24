@@ -162,7 +162,7 @@ VALUES
 func ActExpectErrorAtDBQuery(t *testing.T, deps RepoDeps, state State) State {
 	t.Helper()
 	deps.MockDB.EXPECT().Query(mock.Anything,
-		findByIdAndUserIdQuery,
+		findByIDAndUserIDQuery,
 		state.Payment.ID,
 		state.Payment.UserID,
 	).Return(nil, state.ExpectError)
@@ -235,7 +235,7 @@ func TestRepository_FindByIDAndUserID(t *testing.T) {
 
 		actMockRows := func(t *testing.T, deps RepoDeps, state State) State {
 			t.Helper()
-			deps.MockDB.EXPECT().Query(mock.Anything, findByIdAndUserIdQuery,
+			deps.MockDB.EXPECT().Query(mock.Anything, findByIDAndUserIDQuery,
 				state.Payment.ID,
 				state.Payment.UserID).Return(deps.MockRows, nil)
 			return state

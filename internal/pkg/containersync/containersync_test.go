@@ -8,6 +8,7 @@ import (
 
 	"github.com/godepo/groat"
 	"github.com/godepo/groat/pkg/ctxgroup"
+	"github.com/testcontainers/testcontainers-go"
 )
 
 type Deps struct {
@@ -45,7 +46,7 @@ func newTerminatorCase(t *testing.T) *groat.Case[Deps, State, func()] {
 		deps.WG.Wait()
 	})
 	tcs.Go()
-	tcs.SUT = Terminator(tcs.Deps.ctx, func(ctx context.Context) error {
+	tcs.SUT = Terminator(tcs.Deps.ctx, func(ctx context.Context, _ ...testcontainers.TerminateOption) error {
 		err := tcs.State.handler(ctx)
 		tcs.Deps.WG.Done()
 		return err

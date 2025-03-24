@@ -1,4 +1,4 @@
-//go:generate mockery
+//go:generate go tool mockery
 package example
 
 import (
@@ -33,17 +33,16 @@ func (repo *Repository) Create(ctx context.Context, payment Payment) error {
 		createQuery, payment.ID, payment.UserID, payment.Amount, payment.Kind, payment.Currency)
 
 	return err
-
 }
 
-const findByIdAndUserIdQuery = `
+const findByIDAndUserIDQuery = `
 SELECT 
     id, user_id, amount, kind, currency, state, created_at, processed_at
 FROM groat_pay.payments 
 WHERE user_id=$2 AND id=$1`
 
 func (repo *Repository) FindByIDAndUserID(ctx context.Context, id uuid.UUID, userID string) (empty Payment, err error) {
-	rows, err := repo.db.Query(ctx, findByIdAndUserIdQuery, id, userID)
+	rows, err := repo.db.Query(ctx, findByIDAndUserIDQuery, id, userID)
 	if err != nil {
 		return empty, err
 	}

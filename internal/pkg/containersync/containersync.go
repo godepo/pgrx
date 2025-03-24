@@ -2,21 +2,21 @@ package containersync
 
 import (
 	"context"
-	"fmt"
+	"log"
 
 	"github.com/godepo/groat/pkg/ctxgroup"
+	"github.com/testcontainers/testcontainers-go"
 )
 
-func Terminator(ctx context.Context, terminate func(ctx context.Context) error) func() {
+func Terminator(ctx context.Context, terminate func(context.Context, ...testcontainers.TerminateOption) error) func() {
 	return func() {
 		<-ctx.Done()
 		defer func() {
 			ctxgroup.DoneFrom(ctx)
 		}()
-		err := terminate(context.Background())
+		err := terminate(context.Background()) //nolint:contextcheck
 		if err != nil {
-			fmt.Printf("---[GOAT]: error terminating postgres container: %v\n", err)
+			log.Printf("---[GOAT]: error terminating postgres container: %v\n", err)
 		}
 	}
-
 }
