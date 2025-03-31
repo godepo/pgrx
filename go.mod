@@ -1,11 +1,10 @@
 module github.com/godepo/pgrx
 
 go 1.24.1
-
 require (
 	github.com/godepo/groat v0.0.1
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.7.3
+	github.com/jackc/pgx/v5 v5.7.4
 	github.com/jaswdr/faker/v2 v2.3.0
 	github.com/spf13/afero v1.14.0
 	github.com/stretchr/testify v1.10.0
@@ -251,7 +250,6 @@ require (
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/term v0.29.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	golang.org/x/time v0.10.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
