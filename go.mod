@@ -1,11 +1,12 @@
 module github.com/godepo/pgrx
 
 go 1.24.1
+
 require (
 	github.com/godepo/groat v0.0.1
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
-	github.com/jaswdr/faker/v2 v2.3.0
+	github.com/jaswdr/faker/v2 v2.4.0
 	github.com/spf13/afero v1.14.0
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.35.0
