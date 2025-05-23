@@ -48,6 +48,8 @@ type config struct {
 	fs                  afero.Fs
 	runner              containerRunner
 	poolConstructor     func(ctx context.Context, config *pgxpool.Config) (*pgxpool.Pool, error)
+	injectPoolLabel     string
+	injectConfigLabel   string
 }
 
 type containerRunner func(
@@ -62,14 +64,16 @@ type PostgresContainer interface {
 }
 
 type Container[T any] struct {
-	forks          *atomic.Int32
-	pc             PostgresContainer
-	connString     string
-	pgCfg          *pgxpool.Config
-	ctx            context.Context
-	migrator       Migrator
-	migrationsPath string
-	root           *pgxpool.Pool
+	forks             *atomic.Int32
+	pc                PostgresContainer
+	connString        string
+	pgCfg             *pgxpool.Config
+	ctx               context.Context
+	migrator          Migrator
+	migrationsPath    string
+	injectPoolLabel   string
+	injectConfigLabel string
+	root              *pgxpool.Pool
 }
 
 type MigratorConfig struct {
@@ -108,8 +112,8 @@ func (c *Container[T]) Injector(t *testing.T, to T) T {
 		UserName: cfg.ConnConfig.User,
 	})
 	require.NoError(t, err)
-	generics.Injector[*pgxpool.Config, T](t, cfg, to, "pgxconfig")
-	return generics.Injector[*pgxpool.Pool, T](t, p, to, "pgxpool")
+	generics.Injector[*pgxpool.Config, T](t, cfg, to, c.injectConfigLabel)
+	return generics.Injector[*pgxpool.Pool, T](t, p, to, c.injectPoolLabel)
 }
 
 func New[T any](all ...Option) integration.Bootstrap[T] {
@@ -132,7 +136,9 @@ func New[T any](all ...Option) integration.Bootstrap[T] {
 		) (PostgresContainer, error) {
 			return postgres.Run(ctx, img, opts...)
 		},
-		poolConstructor: pgxpool.NewWithConfig,
+		poolConstructor:   pgxpool.NewWithConfig,
+		injectPoolLabel:   "pgxpool",
+		injectConfigLabel: "pgxconfig",
 	}
 	for _, opt := range all {
 		opt(&cfg)
@@ -205,6 +211,9 @@ func newContainer[T any](ctx context.Context,
 		return nil, fmt.Errorf("cannot get connection string for postgres container: %w", err)
 	}
 	container.connString = connString
+	container.injectPoolLabel = cfg.injectPoolLabel
+	container.injectConfigLabel = cfg.injectConfigLabel
+
 	container.pgCfg, err = pgxpool.ParseConfig(container.connString)
 	if err != nil {
 		return nil, fmt.Errorf("can't parse connection string: %w", err)

@@ -94,3 +94,15 @@ func WithMigrationsPath(path string) Option {
 		c.migrationsPath = path
 	}
 }
+
+func WithPoolInjectLabel(label string) Option {
+	return func(c *config) {
+		c.injectPoolLabel = label
+	}
+}
+
+func WithPoolConfigInjectLabel(label string) Option {
+	return func(c *config) {
+		c.injectConfigLabel = label
+	}
+}
