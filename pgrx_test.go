@@ -11,6 +11,7 @@ import (
 	"github.com/godepo/groat"
 	"github.com/godepo/groat/integration"
 	"github.com/godepo/groat/pkg/ctxgroup"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 )
 
@@ -21,6 +22,7 @@ type State struct {
 }
 
 type Deps struct {
+	DB *pgxpool.Pool `groat:"pgxpool"`
 }
 
 var suite *integration.Container[Deps, State, *SystemUnderTest]
