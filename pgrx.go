@@ -50,6 +50,8 @@ type config struct {
 	poolConstructor     func(ctx context.Context, config *pgxpool.Config) (*pgxpool.Pool, error)
 	injectPoolLabel     string
 	injectConfigLabel   string
+	hostedDBNamespace   string
+	hostedDSN           string
 }
 
 type containerRunner func(
@@ -146,6 +148,12 @@ func New[T any](all ...Option) integration.Bootstrap[T] {
 
 	if env := os.Getenv(cfg.imageEnvValue); env != "" {
 		cfg.containerImage = env
+	}
+
+	if env := os.Getenv("GROAT_I9N_PG_DSN"); env != "" {
+		cfg.hostedDSN = env
+
+		return hostedBootstrapper[T](cfg)
 	}
 
 	return bootstrapper[T](cfg)

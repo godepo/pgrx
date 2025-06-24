@@ -106,3 +106,9 @@ func WithPoolConfigInjectLabel(label string) Option {
 		c.injectConfigLabel = label
 	}
 }
+
+func WithHostedNamespace(ns string) Option {
+	return func(c *config) {
+		c.hostedDBNamespace = ns
+	}
+}

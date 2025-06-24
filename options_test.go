@@ -2,7 +2,6 @@ package pgrx
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -51,7 +50,6 @@ func ArrangeRandomDeadline(t *testing.T, state OptState) OptState {
 	t.Helper()
 	now := time.Now()
 	state.RandomDeadline = now.Sub(state.Faker.Time().TimeBetween(now.Truncate(time.Hour), now))
-	fmt.Println(state.RandomDeadline)
 	return state
 }
 
@@ -152,4 +150,16 @@ func TestWithFileSystem(t *testing.T) {
 func ArrangeFileSystem(t *testing.T, state OptState) OptState {
 	state.FS = afero.NewMemMapFs()
 	return state
+}
+
+func TestWithPoolConfigInjectLabel(t *testing.T) {
+	tcs := newOptsCase(t).Given(ArrangeRandomString)
+	WithPoolConfigInjectLabel(tcs.State.RandomString)(tcs.SUT)
+	assert.Equal(t, tcs.State.RandomString, tcs.SUT.injectConfigLabel)
+}
+
+func TestWithPoolInjectLabel(t *testing.T) {
+	tcs := newOptsCase(t).Given(ArrangeRandomString)
+	WithPoolInjectLabel(tcs.State.RandomString)(tcs.SUT)
+	assert.Equal(t, tcs.State.RandomString, tcs.SUT.injectPoolLabel)
 }
